@@ -1,0 +1,96 @@
+TYPE="type"
+ARGS="args"
+RETURN="return"
+EXCP="exceptions"
+TARGET="target"
+FUNC="func"
+OBJC="objc"
+
+class ABFile():
+  def __init__(self,filename,create):
+    # globals
+    mycontext['debug'] = False
+    # local (per object) reference to the underlying file
+    self.Afilename = filename + '.a'
+    self.Bfilename = filename + '.b'
+
+    # make the files and add 'SE' to the readat file...
+    if create:
+      self.B_file = openfile(self.Bfilename,create)
+      if self.Afilename in listfiles():
+        self.A_file = openfile(self.Afilename,False)
+      else:
+        self.A_file = openfile(self.Afilename,create)
+        self.A_file.writeat('SE',0)
+
+    else:
+      self.B_file = openfile(self.Bfilename, True)
+      self.A_file = openfile(self.Afilename, False)
+
+    mycontext['Lock']= createlock()
+
+
+
+  def writeat(self,data,offset):
+    mycontext['Lock'].acquire(True)
+    try:
+      self.B_file.writeat(data,offset)
+      mycontext['Lock'].release()
+
+    except:
+      mycontext['Lock'].release()
+      return
+
+  def readat(self,bytes,offset):
+    mycontext['Lock'].acquire(True)
+    try:
+      data_file = self.A_file.readat(bytes,offset)
+      mycontext['Lock'].release()
+      return data_file
+
+    except:
+      mycontext['Lock'].release()
+      return
+
+  def close(self):
+    mylist = []
+    mycontext['Lock'].acquire(True)
+    list1 = self.B_file.readat(None, 0)
+    mylist = list(list1)
+    mycontext['Lock'].release()
+
+    try:
+      if (mylist[-1]=='E' and mylist[0] == 'S'):
+        self.A_file.close()
+        removefile(self.Afilename)
+        self.A_file = openfile(self.Afilename, True)
+        mycontext['Lock'].acquire(True)
+        self.A_file.writeat(list1, 0)
+        mycontext['Lock'].release()
+
+    except:
+      pass
+
+
+    self.B_file.close()
+    self.A_file.close()
+    removefile(self.Bfilename)
+
+
+def ABopenfile(filename, create):
+  return ABFile(filename,create)
+
+
+# The code here sets up type checking and variable hiding for you.  You
+# should not need to change anything below here.
+sec_file_def = {"obj-type":ABFile,
+                "name":"ABFile",
+                "writeat":{"type":"func","args":(str,int),"exceptions":Exception,"return":(int,type(None)),"target":ABFile.writeat},
+                "readat":{"type":"func","args":((int,type(None)),(int)),"exceptions":Exception,"return":str,"target":ABFile.readat},
+                "close":{"type":"func","args":None,"exceptions":None,"return":(bool,type(None)),"target":ABFile.close}
+           }
+
+CHILD_CONTEXT_DEF["ABopenfile"] = {TYPE:OBJC,ARGS:(str,bool),EXCP:Exception,RETURN:sec_file_def,TARGET:ABopenfile}
+
+# Execute the user code
+secure_dispatch_module()

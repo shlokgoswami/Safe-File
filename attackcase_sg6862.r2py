@@ -1,0 +1,28 @@
+# Read and Write operations on a closed file
+
+if "testfile.txt.a" in listfiles():
+    removefile("testfile.txt.a")
+if "testfile.txt.b" in listfiles():
+    removefile("testfile.txt.b")
+
+myfile = ABopenfile("testfile.txt",False)
+myfile.writeat("S000E",0)
+myfile.writeat("SxxxxxxE",0)
+myfile.close()
+
+try:
+	myfile.readat(None,0)
+except:
+	log("Tried to perform read operation on a already closed file\n")
+
+try:
+	myfile.writeat("SPACE",0)
+except:
+	log("Tried to perform write operation on a already closed file\n")
+"""
+try:
+	myfile.close()
+except:
+	#Usually close function throws a forbidden exception since exception is not declared for close function in security monitor 
+	log("Tried to close an already closed file\n")
+"""
