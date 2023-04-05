@@ -11,7 +11,7 @@ The defensive security system created in this project keeps a backup copy of a f
 The project also involves writing test applications to ensure the reference monitor behaves properly in different cases and to test attacks against the monitor. The attacker's objective is to bypass the A/B restrictions or cause the security layer to act in a disallowed manner.
 
 # Usage
-To use this project, simply clone the repository to your local machine and use Repy V2 and Python to run the reference monitor. The program must produce no output when run normally and must be submitted as a repy file called reference_monitor_[netid].r2py in Gradescope.
+To use this project, simply clone the repository to your local machine and use Repy V2 and Python to run the reference monitor. The program must produce no output when run normally.
 
 # Contributing
 If you wish to contribute to this project, please fork the repository and make your changes in a separate branch. Once you have made your changes, submit a pull request with a clear description of your changes and why they are necessary.
